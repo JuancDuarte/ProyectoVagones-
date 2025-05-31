@@ -17,6 +17,8 @@ public class Material {
     @JoinColumn(name = "vagoneta_id")
     private Vagoneta vagoneta;
 
+    public Material() {
+    }
     public Material(Long id, String nombreMaterial, double peso) {
         this.id = id;
         this.nombreMaterial = nombreMaterial;

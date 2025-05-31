@@ -11,5 +11,7 @@ public interface vagonetaService {
     public abstract Material saveMaterial(Material material);
     public abstract Vagoneta addMaterial(Long id, Material material);
     public abstract Vagoneta getVagonetaById(Long id);
-    
+    public abstract List<Material> getListMaterials();
+    public abstract void entradaVagon(Long id, List<Material> materials);
+    public abstract void salidaVagoneta(Long id);
 } 
