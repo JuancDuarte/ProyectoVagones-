@@ -28,6 +28,10 @@ public class VagonetaServiceImplementation implements vagonetaService{
     @Qualifier("CrudMaterial")
     private MaterialManagment ma; 
 
+    @Autowired
+    @Qualifier("RegistroPdf")
+    private RegistroMina registroMina;
+
     List<Vagoneta> vagonetaLista = new ArrayList<>();
     List<Material> materiaLista = new ArrayList<>();
 
@@ -72,10 +76,19 @@ public class VagonetaServiceImplementation implements vagonetaService{
             double cargaMaxima = optionalVagoneta.get().getCargaMaxima();
             double cargaActual = materials.stream().mapToDouble(Material::getPeso).sum();
             Random random = new Random();
+            if(cargaActual> cargaMaxima){
+                System.out.println("El vagon con el ID: "+ id + "ya no tiene mas cpacidad para almecanr materiales ");
+                return;
+            }
             if (!va.existsById(id)) {
                 System.out.println("El vagón con el ID: " + id + " no existe.");
                 return;
             }   
+            if(optionalVagoneta.get().getEstado() == "Ocupado"){
+                System.out.println("El vagon con el ID "+ id + "esta "+ optionalVagoneta.get().getEstado()
+                + "use un vagon disponible");
+                return;
+            }
             if(materials == null || materials.isEmpty()){
                 System.out.println("El vagon esta vacio agrega materiales para minar");
                 return;
@@ -118,10 +131,22 @@ public class VagonetaServiceImplementation implements vagonetaService{
     public void salidaVagoneta(Long id) {
         Runnable salidaTask = () -> {
             Optional<Vagoneta> vagonOptional = va.findById(id);
+            double cargaActual = vagonOptional.get().getMaterial().stream().mapToDouble(Material::getPeso).sum();
+            if (!va.existsById(id)) {
+                System.out.println("El vagón con el ID: " + id + " no existe.");
+                return;
+            }   
+            if(vagonOptional.get().getEstado() == "Disponible"){
+                System.out.println("El vagon con el ID "+ id + "esta " + vagonOptional.get().getEstado()
+                + "fuera de la mina");
+                return;
+            }
             if (vagonOptional.isPresent()) {
                 Vagoneta vagon = vagonOptional.get();
                 vagon.setEstado("Disponible");
                 vagon.setHoraSalida(new Date());
+                registroMina.generarRegistroPDF(id, cargaActual, vagon.getHoraEntrada(), vagon.getHoraSalida(),
+                 vagon.getMaterial());
                 
                 System.out.println("Vagon " + id + " salió de la mina a las: "+ vagon.getHoraSalida()   );
                 va.save(vagon);
