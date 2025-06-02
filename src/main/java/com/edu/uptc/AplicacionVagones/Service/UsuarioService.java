@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service;
 import com.edu.uptc.AplicacionVagones.Entities.UsuarioEntity;
 import com.edu.uptc.AplicacionVagones.Managment.UsuarioManagment;
 
-public class UsuarioService {
+@Service
+public class UsuarioService implements UserDetailsService {
     @Autowired
     private UsuarioManagment um;
 
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     UsuarioEntity usuario = um.findByUsername(username)
     .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));

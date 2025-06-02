@@ -20,7 +20,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 @Service("RegistroPdf")
 public class RegistroMina {
     @Async
-    public void generarRegistroPDF(Long id, double cargaActual, Date horaEntrada, Date horaSalida, List<Material> materiales) {
+    public void generarRegistroPDF(Long id, double cargaActual, Date hora_entrada, Date hora_salida, List<Material> materiales) {
         try {
             TimeUnit.SECONDS.sleep(5); // Simula el tiempo de generación
             String fileName = "Vagon-" + id + ".pdf";
@@ -41,15 +41,15 @@ public class RegistroMina {
             document.add(new Paragraph("\n"));
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            document.add(new Paragraph("Hora de entrada: " + dateFormat.format(horaEntrada)));
-            document.add(new Paragraph("Hora de salida: " + dateFormat.format(horaSalida)));
+            document.add(new Paragraph("Hora de entrada: " + dateFormat.format(hora_entrada)));
+            document.add(new Paragraph("Hora de salida: " + dateFormat.format(hora_salida)));
             document.add(new Paragraph("Numero de identificacion del vagon: " + id));
             document.add(new Paragraph("Carga acutal del vagon: " + cargaActual+ "km"));
             document.add(new Paragraph("Materiales que contiene el vagon: "));
 
             materiales.forEach(material -> {
             try {
-                document.add(new Paragraph("- " + material.getNombreMaterial() + ": " + material.getPeso() + " kg"));
+                document.add(new Paragraph("- " + material.getnombre_material() + ": " + material.getPeso() + " kg"+ ", tipo: "+ material.getTipo()));
             } catch (DocumentException e) {
                 e.printStackTrace();
             }

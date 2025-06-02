@@ -15,23 +15,26 @@ import jakarta.persistence.TemporalType;
 @Entity
 @Table(name="vagoneta")
 public class Vagoneta {
+
     @Id
     private long id;
-    private double cargaMaxima;
+    private double carga_maxima;
     private String estado;
     @Temporal(TemporalType.TIMESTAMP)
-    private Date horaEntrada;
+    private Date hora_entrada;
     @Temporal(TemporalType.TIMESTAMP)
-    private Date horaSalida;
-    @OneToMany(mappedBy = "vagoneta", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Date hora_salida;
+    @OneToMany(mappedBy = "vagoneta", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Material> Material;
-    public Vagoneta(long id, double cargaMaxima, String estado, Date horaEntrada, Date horaSalida,
+    public Vagoneta() {
+    }
+    public Vagoneta(long id, double carga_maxima, String estado, Date hora_entrada, Date hora_salida,
             List<com.edu.uptc.AplicacionVagones.Entities.Material> material) {
         this.id = id;
-        this.cargaMaxima = cargaMaxima;
+        this.carga_maxima = carga_maxima;
         this.estado = estado;
-        this.horaEntrada = horaEntrada;
-        this.horaSalida = horaSalida;
+        this.hora_entrada = hora_entrada;
+        this.hora_salida = hora_salida;
         Material = material;
     }
     public long getId() {
@@ -40,11 +43,11 @@ public class Vagoneta {
     public void setId(long id) {
         this.id = id;
     }
-    public double getCargaMaxima() {
-        return cargaMaxima;
+    public double getcarga_maxima() {
+        return carga_maxima;
     }
-    public void setCargaMaxima(double cargaMaxima) {
-        this.cargaMaxima = cargaMaxima;
+    public void setcarga_maxima(double carga_maxima) {
+        this.carga_maxima = carga_maxima;
     }
     public String getEstado() {
         return estado;
@@ -52,17 +55,17 @@ public class Vagoneta {
     public void setEstado(String estado) {
         this.estado = estado;
     }
-    public Date getHoraEntrada() {
-        return horaEntrada;
+    public Date gethora_entrada() {
+        return hora_entrada;
     }
-    public void setHoraEntrada(Date horaEntrada) {
-        this.horaEntrada = horaEntrada;
+    public void sethora_entrada(Date hora_entrada) {
+        this.hora_entrada = hora_entrada;
     }
-    public Date getHoraSalida() {
-        return horaSalida;
+    public Date gethora_salida() {
+        return hora_salida;
     }
-    public void setHoraSalida(Date horaSalida) {
-        this.horaSalida = horaSalida;
+    public void sethora_salida(Date hora_salida) {
+        this.hora_salida = hora_salida;
     }
     public List<Material> getMaterial() {
         return Material;

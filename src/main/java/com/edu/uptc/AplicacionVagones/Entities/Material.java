@@ -1,6 +1,11 @@
 package com.edu.uptc.AplicacionVagones.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -10,20 +15,23 @@ import jakarta.persistence.Table;
 @Table(name = "material")
 public class Material {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombreMaterial;
+    private String nombre_material;
     private double peso;
-    @ManyToOne
-    @JoinColumn(name = "vagoneta_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+@   JoinColumn(name = "vagoneta_id")
+@   JsonIgnore
     private Vagoneta vagoneta;
+    private String tipo;
 
     public Material() {
     }
-    public Material(Long id, String nombreMaterial, double peso) {
+    public Material(Long id, String nombre_material, double peso, String tipo) {
         this.id = id;
-        this.nombreMaterial = nombreMaterial;
+        this.nombre_material = nombre_material;
         this.peso = peso;
-        this.vagoneta = vagoneta;
+        this.tipo = tipo;
     }
     public Long getId() {
         return id;
@@ -31,11 +39,11 @@ public class Material {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getNombreMaterial() {
-        return nombreMaterial;
+    public String getnombre_material() {
+        return nombre_material;
     }
-    public void setNombreMaterial(String nombreMaterial) {
-        this.nombreMaterial = nombreMaterial;
+    public void setnombre_material(String nombre_material) {
+        this.nombre_material = nombre_material;
     }
     public double getPeso() {
         return peso;
@@ -48,6 +56,12 @@ public class Material {
     }
     public void setVagoneta(Vagoneta vagoneta) {
         this.vagoneta = vagoneta;
+    }
+    public String getTipo() {
+        return tipo;
+    }
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 
 }

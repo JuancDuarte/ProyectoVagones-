@@ -1,6 +1,7 @@
 package com.edu.uptc.AplicacionVagones.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,7 @@ public class UsuarioControl {
     @Autowired
     private UsuarioManagment usuarioMg;
 
-    @PostMapping(path="/crear")
+    @PostMapping(path="/crear", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UsuarioEntity crearUsuario(@RequestBody UsuarioEntity usuario) {
         usuario.setPassword(usuario.getPassword());
         return usuarioMg.save(usuario);

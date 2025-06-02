@@ -71,64 +71,84 @@ public class VagonetaServiceImplementation implements vagonetaService{
     }
     @Override
     public void entradaVagon(Long id, List<Material> materials) {
-        Optional<Vagoneta> optionalVagoneta = va.findById(id);
-        Runnable entradaMina = () -> {
-            double cargaMaxima = optionalVagoneta.get().getCargaMaxima();
-            double cargaActual = materials.stream().mapToDouble(Material::getPeso).sum();
-            Random random = new Random();
-            if(cargaActual> cargaMaxima){
-                System.out.println("El vagon con el ID: "+ id + "ya no tiene mas cpacidad para almecanr materiales ");
-                return;
-            }
-            if (!va.existsById(id)) {
-                System.out.println("El vagón con el ID: " + id + " no existe.");
-                return;
-            }   
-            if(optionalVagoneta.get().getEstado() == "Ocupado"){
-                System.out.println("El vagon con el ID "+ id + "esta "+ optionalVagoneta.get().getEstado()
-                + "use un vagon disponible");
-                return;
-            }
-            if(materials == null || materials.isEmpty()){
-                System.out.println("El vagon esta vacio agrega materiales para minar");
-                return;
-            }
-            if(optionalVagoneta.isPresent()){
-                Vagoneta vagonet = optionalVagoneta.get();
-                System.out.println("Vagoneta " + id + " ingresando a la mina con carga inicial de herramientas: " + cargaActual + " kg");
-                while (cargaActual< cargaMaxima) {
-                    long randomMaterialId = 4 + random.nextInt(8); // IDs entre 4 y 11
-                    Optional<Material> optionalMaterial = ma.findById(randomMaterialId);
-                     if (optionalMaterial.isPresent()) {
-                            double peso = optionalMaterial.get().getPeso();
+    Optional<Vagoneta> optionalVagoneta = va.findById(id);
 
-                        if (cargaActual + peso > cargaMaxima) {
-                        System.out.println("No se puede agregar material (ID: " + randomMaterialId + ") - Exceso de carga.");
-                        break;
-                        }
-                        Material nuevo = new Material();
-                      //  nuevo.setId(optionalMaterial.get().getId());
-                        nuevo.setNombreMaterial(optionalMaterial.get().getNombreMaterial());
-                        nuevo.setPeso(peso);
-                        nuevo.setVagoneta(optionalVagoneta.get());
-                        ma.save(nuevo);
-                        vagonet.setHoraEntrada(new Date());
-                        vagonet.setEstado("Ocupado");
-                        vagonet.getMaterial().add(nuevo);
-                        cargaActual += peso;
-                        System.out.println("Material añadido: " + nuevo.getNombreMaterial() + " - Peso: " + peso + "kg - Total: " + cargaActual + "kg");
-                     }else {
-                    System.out.println("Material con ID " + randomMaterialId + " no encontrado en base de datos.");
-                 }
-                }
-            va.save(vagonet);
-            System.out.println("Vagoneta " + id + " completó recolección. Carga total: " + cargaActual + "kg.");
-        }
-        };
-        new Thread(entradaMina).start();
+    if (materials == null || materials.isEmpty()) {
+        System.out.println("La lista de materiales está vacía. Agrega materiales antes de entrar a la mina.");
+        return;
     }
+
+    if (!optionalVagoneta.isPresent()) {
+        System.out.println("El vagón con el ID: " + id + " no existe.");
+        return;
+    }
+
+    Vagoneta vagoneta = optionalVagoneta.get();
+
+    if ("Ocupado".equalsIgnoreCase(vagoneta.getEstado())) {
+        System.out.println("El vagón con el ID " + id + " está ocupado. Usa un vagón disponible.");
+        return;
+    }
+
+    Runnable entradaMina = () -> {
+        double cargaMaxima = vagoneta.getcarga_maxima();
+        double cargaActual = materials.stream().mapToDouble(Material::getPeso).sum();
+
+        if (cargaActual > cargaMaxima) {
+            System.out.println("El vagón con el ID: " + id + " ya no tiene capacidad para almacenar más materiales.");
+            return;
+        }
+
+        Random random = new Random();
+
+        System.out.println("Vagoneta " + id + " ingresando a la mina con carga inicial: " + cargaActual + " kg.");
+
+        while (cargaActual < cargaMaxima) {
+            long randomMaterialId = 4 + random.nextInt(8); // IDs entre 4 y 11
+            Optional<Material> optionalMaterial = ma.findById(randomMaterialId);
+
+            if (optionalMaterial.isPresent()) {
+                Material baseMaterial = optionalMaterial.get();
+                double peso = baseMaterial.getPeso();
+
+                if (cargaActual + peso > cargaMaxima) {
+                    System.out.println("No se puede agregar material (ID: " + randomMaterialId + ") - Exceso de carga.");
+                    break;
+                }
+
+                Material nuevo = new Material();
+                nuevo.setnombre_material(baseMaterial.getnombre_material());
+                nuevo.setPeso(peso);
+                nuevo.setTipo(baseMaterial.getTipo());
+                nuevo.setVagoneta(vagoneta);
+
+                ma.save(nuevo);
+
+                vagoneta.sethora_entrada(new Date());
+                vagoneta.setEstado("Ocupado");
+                vagoneta.getMaterial().add(nuevo);
+
+                cargaActual += peso;
+
+                System.out.println("Material añadido: " + nuevo.getnombre_material() +
+                        " - Peso: " + peso + "kg - Total acumulado: " + cargaActual + "kg");
+            } else {
+                System.out.println("Material con ID " + randomMaterialId + " no encontrado.");
+            }
+        }
+
+        va.save(vagoneta);
+        System.out.println("Vagoneta " + id + " completó recolección. Carga total: " + cargaActual + "kg.");
+    };
+
+    new Thread(entradaMina).start();
+}
     @Override
     public void salidaVagoneta(Long id) {
+        Vagoneta vagon = va.findById(id).orElse(null);
+        if (vagon != null) {
+            vagon.getMaterial().size(); 
+        }
         Runnable salidaTask = () -> {
             Optional<Vagoneta> vagonOptional = va.findById(id);
             double cargaActual = vagonOptional.get().getMaterial().stream().mapToDouble(Material::getPeso).sum();
@@ -142,13 +162,12 @@ public class VagonetaServiceImplementation implements vagonetaService{
                 return;
             }
             if (vagonOptional.isPresent()) {
-                Vagoneta vagon = vagonOptional.get();
                 vagon.setEstado("Disponible");
-                vagon.setHoraSalida(new Date());
-                registroMina.generarRegistroPDF(id, cargaActual, vagon.getHoraEntrada(), vagon.getHoraSalida(),
+                vagon.sethora_salida(new Date());
+                registroMina.generarRegistroPDF(id, cargaActual, vagon.gethora_entrada(), vagon.gethora_salida(),
                  vagon.getMaterial());
                 
-                System.out.println("Vagon " + id + " salió de la mina a las: "+ vagon.getHoraSalida()   );
+                System.out.println("Vagon " + id + " salió de la mina a las: "+ vagon.gethora_salida()   );
                 va.save(vagon);
 
             } else {
@@ -157,6 +176,7 @@ public class VagonetaServiceImplementation implements vagonetaService{
         };
         new Thread(salidaTask).start();
     }
+    
     
 
 
