@@ -106,4 +106,15 @@ public ResponseEntity<Vagoneta> buscarVagoneta(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }
+@PostMapping(path="/crearVagoneta", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<Vagoneta> crearVagoneta(@RequestBody Vagoneta vagoneta) {
+    Vagoneta createdVagoneta = vsi.saveVagoneta(vagoneta);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdVagoneta);
+}
+@PostMapping(path="/crearMaterial", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<Material> crearMaterial(@RequestBody Material material) {
+    Material createdMaterial = vsi.saveMaterial(material);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdMaterial);
+}
+
 }
