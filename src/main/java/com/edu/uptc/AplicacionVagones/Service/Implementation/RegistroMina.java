@@ -44,7 +44,7 @@ public class RegistroMina {
             document.add(new Paragraph("Hora de entrada: " + dateFormat.format(hora_entrada)));
             document.add(new Paragraph("Hora de salida: " + dateFormat.format(hora_salida)));
             document.add(new Paragraph("Numero de identificacion del vagon: " + id));
-            document.add(new Paragraph("Carga acutal del vagon: " + cargaActual+ "km"));
+            document.add(new Paragraph("Carga acutal del vagon: " + cargaActual+ "kg"));
             document.add(new Paragraph("Materiales que contiene el vagon: "));
 
             materiales.forEach(material -> {
@@ -56,7 +56,7 @@ public class RegistroMina {
             });
             document.close();
 
-            System.out.println("PDF de vagon generado: " + fileName);
+            System.out.println("PDF de vagoneta generado: " + fileName);
         } catch (Exception e) {
             e.printStackTrace();
         }

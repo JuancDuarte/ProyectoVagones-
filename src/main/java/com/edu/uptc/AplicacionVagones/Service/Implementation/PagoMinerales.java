@@ -23,7 +23,7 @@ public class PagoMinerales {
     public void generarPagoPDF(Long id, double cargaActual, Date hora_entrada, Date hora_salida, List<Material> materiales, double valor) {
         try {
             TimeUnit.SECONDS.sleep(5); // Simula el tiempo de generación
-            String fileName = "Vagon-" + id + "pago de minerales.pdf";
+            String fileName = "Vagon- " + id + "pago de minerales.pdf";
             Document document = new Document();
             PdfWriter.getInstance(document, new FileOutputStream(fileName));
             document.open();
@@ -35,7 +35,7 @@ public class PagoMinerales {
             */
 
             Font fontTitle = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
-            Paragraph title = new Paragraph("Pago del vagon "+ id + "por sus materiales" , fontTitle);
+            Paragraph title = new Paragraph("Pago del vagon "+ id + " por sus materiales" , fontTitle);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
             document.add(new Paragraph("\n"));
@@ -44,13 +44,13 @@ public class PagoMinerales {
             document.add(new Paragraph("Hora de entrada: " + dateFormat.format(hora_entrada)));
             document.add(new Paragraph("Hora de salida: " + dateFormat.format(hora_salida)));
             document.add(new Paragraph("Numero de identificacion del vagon: " + id));
-            document.add(new Paragraph("Carga acutal del vagon: " + cargaActual+ "km"));
+            document.add(new Paragraph("Carga acutal del vagon: " + cargaActual+ "kg"));
             document.add(new Paragraph("Materiales que contiene el vagon: "));
 
             materiales.forEach(material -> {
             try {
-                document.add(new Paragraph("- " + material.getnombre_material() + ": " + material.getPeso() + " kg"+ ", tipo: "+ material.getTipo()));
-                document.add(new Paragraph("Precio:" + material.getPeso()*1000));
+                document.add(new Paragraph("- " + material.getnombre_material() + ": " + material.getPeso() + " kg "+ ", tipo: "+ material.getTipo()));
+                document.add(new Paragraph("Precio: " + material.getPeso()*1000 + " COP"));
             } catch (DocumentException e) {
                 e.printStackTrace();
             }
