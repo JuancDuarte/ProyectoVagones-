@@ -88,5 +88,14 @@ public ResponseEntity<Vagoneta> entradaMina( @PathVariable Long id) {
         vsi.salidaVagoneta(id);
         return "Vehículo está saliendo. Revisa la consola para el proceso completo.";
 }
+@PostMapping("/vender/{id}")
+    public ResponseEntity<String> venderMateriales(@PathVariable Long id) {
+        try {
+            double total = vsi.venderMateriales(id);
+            return ResponseEntity.ok("Materiales vendidos por $" + total);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 
 }

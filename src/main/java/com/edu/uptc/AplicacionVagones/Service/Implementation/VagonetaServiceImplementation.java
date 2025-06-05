@@ -31,6 +31,10 @@ public class VagonetaServiceImplementation implements vagonetaService{
     @Autowired
     @Qualifier("RegistroPdf")
     private RegistroMina registroMina;
+    
+    @Autowired
+    @Qualifier("PagoMinerales")
+    private PagoMinerales pagoMinerales;
 
     List<Vagoneta> vagonetaLista = new ArrayList<>();
     List<Material> materiaLista = new ArrayList<>();
@@ -175,6 +179,40 @@ public class VagonetaServiceImplementation implements vagonetaService{
             }
         };
         new Thread(salidaTask).start();
+    }
+     @Transactional
+    public double venderMateriales(Long idVagoneta) {
+        Optional<Vagoneta> optionalVagoneta = va.findById(idVagoneta);
+        if (optionalVagoneta.isEmpty()) {
+            throw new RuntimeException("Vagoneta con id " + idVagoneta + " no encontrada");
+        }
+
+        Vagoneta vagoneta = optionalVagoneta.get();
+        List<Material> materiales = new ArrayList<>(vagoneta.getMaterial());
+        double totalVenta = 0;
+
+        for (Material material : materiales) {
+            if ("mineral".equalsIgnoreCase(material.getTipo())) {
+                if (material.getId() >= 4 && material.getId() <= 11) {
+                    material.setVagoneta(null); // desasociar
+                    totalVenta += material.getPeso() * 1000;
+                    ma.save(material);
+                } else {
+                    totalVenta += material.getPeso() * 1000;
+                    ma.delete(material);
+                }
+            } else if ("herramienta".equalsIgnoreCase(material.getTipo())) {
+                material.setVagoneta(null);
+                ma.save(material);
+            }
+        }
+        pagoMinerales.generarPagoPDF(idVagoneta, vagoneta.getcarga_maxima(), vagoneta.gethora_entrada(), vagoneta.gethora_salida(), materiales, totalVenta);
+        vagoneta.getMaterial().clear();
+        vagoneta.sethora_entrada(null);
+        vagoneta.sethora_salida(null);
+        va.save(vagoneta);
+
+        return totalVenta;
     }
     
     
