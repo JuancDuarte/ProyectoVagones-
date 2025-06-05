@@ -73,7 +73,7 @@ private VagonetaServiceImplementation vsi;
     public List<Material> listarMateriales() {
         return vsi.getListMaterials();
     }
-@PutMapping(path="/EntradaMina/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@PutMapping(path="/EntradaMina/{id}",  produces = MediaType.APPLICATION_JSON_VALUE)
 public ResponseEntity<Vagoneta> entradaMina( @PathVariable Long id) {
         Vagoneta updatedVagoneta = vsi.getVagonetaById(id);
             if (updatedVagoneta != null) {
@@ -83,7 +83,7 @@ public ResponseEntity<Vagoneta> entradaMina( @PathVariable Long id) {
                 return ResponseEntity.notFound().build();
             }
 }
-@PutMapping(path="/salidaMina/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@PutMapping(path="/salidaMina/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public String salidaVehiculo(@PathVariable Long id) {
         vsi.salidaVagoneta(id);
         return "Vehículo está saliendo. Revisa la consola para el proceso completo.";
