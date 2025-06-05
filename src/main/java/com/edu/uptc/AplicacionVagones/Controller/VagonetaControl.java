@@ -97,5 +97,13 @@ public ResponseEntity<Vagoneta> entradaMina( @PathVariable Long id) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
+@GetMapping(path="/buscarVagoneta/{id}",produces= MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<Vagoneta> buscarVagoneta(@PathVariable Long id) {
+    Vagoneta vagoneta = vsi.getVagonetaById(id);
+    if (vagoneta != null) {
+        return ResponseEntity.ok(vagoneta);
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+}
 }

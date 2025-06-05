@@ -50,6 +50,11 @@ public class VagonetaServiceImplementation implements vagonetaService{
 
     @Override
     public Material saveMaterial(Material material) {
+        if ("mineral".equalsIgnoreCase(material.getTipo())) {
+            System.out.println("No se pueden agregar nuevos materiales de tipo mineral.");
+            } else if ("herramienta".equalsIgnoreCase(material.getTipo())) {
+                ma.save(material);
+            }
         return ma.save(material);
     }
     @Override
