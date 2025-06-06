@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Vagonetas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    section {
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, button {
+      padding: 8px;
+      margin-top: 5px;
+      width: 300px;
+    }
+    table {
+      margin-top: 15px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Aplicación Vagonetas</h1>
+
+  <section>
+    <h2>Listar Vagonetas</h2>
+    <button onclick="listarVagonetas()">Listar</button>
+    <table id="tablaVagonetas">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Carga Máxima</th>
+            <th>Estado</th>
+            <th>Hora Entrada</th>
+            <th>Hora Salida</th>
+        </tr>
+        </thead>
+        <tbody></tbody> 
+    </table>
+  </section>
+  <section>
+    <h2>Listar Materiales</h2>
+    <button onclick="listarMateriales()">Listar</button>
+    <table id="tablaMateriales">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>nombre Material</th>
+            <th>Peso</th>
+            <th>Vagoneta</th>
+            <th>tipo</th>
+        </tr>
+        </thead>
+        <tbody></tbody> 
+    </table>
+  </section>
+
+  <section>
+    <h2>Crear Vagoneta</h2>
+    <label>CargaMaxima: <input id="nombreVagoneta"></label>
+    <button onclick="crearVagoneta()">Crear</button>
+  </section>
+
+  <section>
+    <h2>Crear Material</h2>
+    <label>Nombre: <input id="nombreMaterial"></label>
+    <label>Peso: <input id="pesoMaterial" type="number"></label>
+    <button onclick="crearMaterial()">Crear</button>
+  </section>
+
+  <section>
+    <h2>Añadir Material a Vagoneta</h2>
+    <label>ID Vagoneta: <input id="idVagonetaMaterial" type="number"></label>
+    <label>ID Material: <input id="idMaterial" type="number"></label>
+    <button onclick="asociarMaterial()">Añadir</button>
+  </section>
+
+  <section>
+    <h2>Calcular Peso de Vagoneta</h2>
+    <label>ID Vagoneta: <input id="idPesoVagoneta" type="number"></label>
+    <button onclick="calcularPeso()">Calcular</button>
+    <p id="resultadoPeso"></p>
+  </section>
+
+  <section>
+    <h2>Entrada / Salida de Mina</h2>
+    <label>ID Vagoneta: <input id="idEntradaSalida" type="number"></label>
+    <button onclick="entradaMina()">Entrada</button>
+    <button onclick="salidaMina()">Salida</button>
+  </section>
+
+  <section>
+    <h2>Vender Materiales</h2>
+    <label>ID Vagoneta: <input id="idVenta" type="number"></label>
+    <button onclick="venderMateriales()">Vender</button>
+    <p id="resultadoVenta"></p>
+  </section>
+
+  <script>
+    const BASE_URL = "http://localhost:8081/vagoneta";
+
+    function listarVagonetas() {
+      fetch(BASE_URL + "/listarVagonetas")
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector("#tablaVagonetas tbody");
+          tbody.innerHTML = "";
+          data.forEach(v => {
+            const materiales = v.material?.map(m => m.nombre).join(", ") || "Sin materiales";
+            tbody.innerHTML += `
+            <tr>
+                <td>${v.id}</td>
+                <td>${v.carga_maxima }</td>
+                <td>${v.estado }</td>
+                <td>${v.hora_entrada ? new Date(v.hora_entrada).toLocaleString() : "Sin entrada"}</td>
+                <td>${v.hora_salida ? new Date(v.hora_salida).toLocaleString() : "Sin salida"}</td>
+            </tr>`;
+          });
+        });
+    }
+     function listarMateriales() {
+      fetch(BASE_URL + "/listarMateriales")
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector("#tablaMateriales tbody");
+          tbody.innerHTML = "";
+          data.forEach(m => {
+            tbody.innerHTML += `
+            <tr>
+                <td>${m.id}</td>
+                <td>${m.nombre_material }</td>
+                <td>${m.peso }</td>
+                <td>${m.vagoneta}</td>
+                <td>${m.tipo}</td>
+            </tr>`;
+          });
+        });
+    }
+
+    function crearVagoneta() {
+      const nombre = document.getElementById("nombreVagoneta").value;
+      fetch(BASE_URL + "/crearVagoneta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre: nombre })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert("Vagoneta creada con ID: " + data.id);
+        listarVagonetas();
+      });
+    }
+
+    function crearMaterial() {
+      const nombre = document.getElementById("nombreMaterial").value;
+      const peso = parseFloat(document.getElementById("pesoMaterial").value);
+      fetch(BASE_URL + "/crearMaterial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre: nombre, peso: peso })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert("Material creado con ID: " + data.id);
+      });
+    }
+
+    function asociarMaterial() {
+      const vagonId = document.getElementById("idVagonetaMaterial").value;
+      const materialId = document.getElementById("idMaterial").value;
+
+      fetch(BASE_URL + "/buscarVagoneta/" + vagonId)
+        .then(res => res.json())
+        .then(vagoneta => {
+          fetch(BASE_URL + "/listarMateriales")
+            .then(res => res.json())
+            .then(materiales => {
+              const material = materiales.find(m => m.id == materialId);
+              if (!material) return alert("Material no encontrado");
+
+              fetch(BASE_URL + "/añadirMaterial/" + vagonId, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(material)
+              })
+              .then(res => res.json())
+              .then(() => {
+                alert("Material añadido a la vagoneta");
+                listarVagonetas();
+              });
+            });
+        });
+    }
+
+    function calcularPeso() {
+      const id = document.getElementById("idPesoVagoneta").value;
+      fetch(BASE_URL + "/Calcularpeso/" + id)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("resultadoPeso").innerText = data.mensaje;
+        });
+    }
+
+    function entradaMina() {
+      const id = document.getElementById("idEntradaSalida").value;
+      fetch(BASE_URL + "/EntradaMina/" + id, { method: "PUT" })
+        .then(() => alert("Entrada registrada"));
+    }
+
+    function salidaMina() {
+      const id = document.getElementById("idEntradaSalida").value;
+      fetch(BASE_URL + "/salidaMina/" + id, { method: "PUT" })
+        .then(res => res.text())
+        .then(msg => alert(msg));
+    }
+
+    function venderMateriales() {
+      const id = document.getElementById("idVenta").value;
+      fetch(BASE_URL + "/vender/" + id, { method: "POST" })
+        .then(res => res.text())
+        .then(msg => document.getElementById("resultadoVenta").innerText = msg);
+    }
+  </script>
+</body>
+</html>
